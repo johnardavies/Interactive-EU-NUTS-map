@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.css' rel='stylesheet' />
+    <link href='./style.css' rel='stylesheet' />
+  </head>
+  <body>
+    <div id='map'></div>
+    <nav id="menu">
+         <a href="#" id="toggle-nuts0">EU NUTS0</a>
+        <a href="#" id="toggle-nuts1">EU NUTS1</a>
+        <a href="#" id="toggle-nuts2">EU NUTS2</a>
+        <a href="#" id="toggle-nuts3">EU NUTS3</a>
+    </nav>
+    <div class='map-overlay top'>
+
+      <!-- Slider commented out<div class='map-overlay-inner'>
+        <label>Filter <span id='slider-value'></span></label>
+        <input id='slider' type='range' min='0' max='60' step='1' value='0' />
+        </div> -->
+        <div id="head" style="fill-color:red">
+          <object data="icon.svg" style="width: 50px; fill:red; margin-right: 20px; float:left;" type="image/svg+xml">
+          </object>
+          <h1 style="color:#000000; width: 8em;">Map of European geographies</h1>
+        </div>
+
+
+    <script>
+  var bounds = [
+    [-20, 30], // Southwest coordinates
+    [34, 80]  // Northeast coordinates
+  ];
+  var zoomThreshold=1;
+
+
+  mapboxgl.accessToken = 'pk.eyJ1Ijoiam9obmFyZGF2aWVzIiwiYSI6ImNpeHRmZjhlYjAwMmUycW9qbHRvem0xa3gifQ.oQ9cnn8b5HATalxv9rppYg';
+  var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/basic-v9',  
+
+      center: [11, 45],
+      minZoom: 0.4,
+      zoom: 3,
+      pitch: 60, // the angle of the view
+    bearing: 0,  // the direction the map view is pointing
+      maxBounds: bounds,
+  });
+
+  // Represent numbers as string (i.e., with thousands separators)
+  function formatNumber (num) {
+      return num.toLocaleString('en')
+  }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Function that makes sure only one layer shows at one time. Should be tidied up
+function toggleLayer (layerName) {
+     var currentState = map.getLayoutProperty(layerName, 'visibility');
+     if (layerName=='EU_NUTS0' && currentState=='none')
+     {
+
+        map.setLayoutProperty(layerName, 'visibility', undefined);
+        map.setLayoutProperty('EU_NUTS1', 'visibility', 'none');
+        map.setLayoutProperty('EU_NUTS2', 'visibility', 'none');
+        map.setLayoutProperty('EU_NUTS3', 'visibility', 'none')
+
+     }
+     else if (layerName=='EU_NUTS1' && currentState=='none'){
+        map.setLayoutProperty(layerName, 'visibility', undefined);
+        map.setLayoutProperty('EU_NUTS0', 'visibility', 'none');
+        map.setLayoutProperty('EU_NUTS2', 'visibility', 'none');
+        map.setLayoutProperty('EU_NUTS3', 'visibility', 'none');
+     }
+     else if (layerName=='EU_NUTS2' && currentState=='none'){
+        map.setLayoutProperty(layerName, 'visibility', undefined);
+        map.setLayoutProperty('EU_NUTS0', 'visibility', 'none');
+        map.setLayoutProperty('EU_NUTS1', 'visibility', 'none');
+        map.setLayoutProperty('EU_NUTS3', 'visibility', 'none');
+     }
+    else if (layerName=='EU_NUTS3' && currentState=='none'){
+        map.setLayoutProperty(layerName, 'visibility', undefined);
+        map.setLayoutProperty('EU_NUTS0', 'visibility', 'none');
+        map.setLayoutProperty('EU_NUTS1', 'visibility', 'none');
+        map.setLayoutProperty('EU_NUTS2', 'visibility', 'none');
+     }
+
+    else {
+          newProperty = undefined;
+       map.setLayoutProperty(layerName, 'visibility', newProperty);
+      }
+    }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // when the map loads to the following
+  map.on('load', function() {
+//Adds the nuts0 data
+    map.addSource('EU_NUTS0', {
+      type: 'geojson',
+      data: 'eunuts_EU0.geojson'
+    });
+
+    //Adds the data as a layer called 'EU_NUTS0'
+    map.addLayer({
+      'id': 'EU_NUTS0',
+      'source':'EU_NUTS0',
+      'type': 'fill',
+      'layout': {
+        'visibility': 'visible',
+      },
+      'paint': {
+        'fill-outline-color':'#000000',
+         'fill-opacity': 0.3,
+         'fill-color':'#ffe6be'
+      }
+   //inserted before the nuts1 layer
+ },'EU_NUTS1');
+
+
+        //Imports NUTS1 as a layer
+        map.addSource('EU_NUTS1', {
+          type: 'geojson',
+          data: 'eunuts_EU1.geojson'
+        });
+
+          //Adds the data as a layer called 'EU_NUTS1'
+        map.addLayer({
+          'id': 'EU_NUTS1',
+          'type': 'fill',
+          'layout': {
+            'visibility': 'none'
+          },
+          'source': 'EU_NUTS1',
+          'paint': {
+            'fill-outline-color':	'#000000',
+             'fill-opacity': 0.3,
+             'fill-color':'#ffe6be'
+
+          }
+        //Inserted before the NUTS2 layer
+      }, 'EU_NUTS2');
+
+
+
+
+    //Imports NUTS2
+    map.addSource('EU_NUTS2', {
+      type: 'geojson',
+      data: 'eunuts_EU2.geojson'
+    });
+
+    //Adds the data as a layer called 'EU_NUTS2'
+    map.addLayer({
+      'id': 'EU_NUTS2',
+      'type': 'fill',
+      'layout': {
+        'visibility': 'none'
+      },
+      'source': 'EU_NUTS2',
+      'paint': {
+
+        'fill-outline-color':'#000000',
+         'fill-opacity': 0.3,
+         'fill-color':'#ffe6be'
+      }
+  //Inserted before the NUTS3 layer
+}, 'EU_NUTS3');
+
+      //Imports NUTS3
+      map.addSource('EU_NUTS3', {
+        type: 'geojson',
+        data: 'eunuts_EU3.geojson'
+      });
+
+      //Adds the data as a layer called 'EU_NUTS3'
+      map.addLayer({
+        'id': 'EU_NUTS3',
+        'type': 'fill',
+
+        'layout': {
+          'visibility': 'none'
+        },
+
+        'source': 'EU_NUTS3',
+        'paint': {
+          'fill-outline-color':'#000000',
+           'fill-opacity': 0.3,
+           'fill-color':'#ffe6be'//'#0000'
+        }
+
+      } );
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Sets the Popups when the layers are clicked on
+    map.on('click', function (e) {
+      var features = map.queryRenderedFeatures(e.point, { layers: ['EU_NUTS0'] });
+      if (!features.length) {
+        return;
+      }
+      var feature = features[0];
+      var popup = new mapboxgl.Popup()
+        .setLngLat(map.unproject(e.point))
+        .setHTML(''+feature.properties.NUTS_NAME+'')
+        .addTo(map);
+    });
+    map.on('click', function (e) {
+      var features = map.queryRenderedFeatures(e.point, { layers: ['EU_NUTS1'] });
+      if (!features.length) {
+        return;
+      }
+      var feature = features[0];
+      var popup = new mapboxgl.Popup()
+        .setLngLat(map.unproject(e.point))
+        .setHTML(''+feature.properties.NUTS_NAME+'') // feature.properties.NUTS_NAME
+        .addTo(map);
+
+    });
+    map.on('click', function (e) {
+      var features = map.queryRenderedFeatures(e.point, { layers: ['EU_NUTS2'] });
+      if (!features.length) {
+        return;
+      }
+      var feature = features[0];
+      var popup = new mapboxgl.Popup()
+        .setLngLat(map.unproject(e.point))
+        .setHTML(''+feature.properties.NUTS_NAME+'')
+        .addTo(map);
+    });
+
+    map.on('click', function (e) {
+      var features = map.queryRenderedFeatures(e.point, { layers: ['EU_NUTS3'] });
+      if (!features.length) {
+        return;
+      }
+      var feature = features[0];
+      var popup = new mapboxgl.Popup()
+        .setLngLat(map.unproject(e.point))
+        .setHTML(''+feature.properties.NUTS_NAME+'')
+        .addTo(map);
+    });
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Sets up the buttons that allow the layers to be selected
+    buttonNames = ['EU NUTS0', 'EU NUTS1', 'EU NUTS2', 'EU NUTS3']
+
+    function resetNavMenu() {
+        buttonNames.forEach(function(x) {
+          document.getElementById(x).className = "";
+        });
+    }
+   //Toggle for NUTS 0
+
+
+   document.getElementById('toggle-nuts0').addEventListener('click', function() {
+       toggleLayer('EU_NUTS0');
+       buttonNames.forEach(function(x) {
+       document.getElementById(x).className = "";
+     });
+       resetNavMenu();  //with the click of the button reset the color
+       this.className = 'active';
+
+   });
+
+
+    document.getElementById('toggle-nuts1').addEventListener('click', function() {
+        toggleLayer('EU_NUTS1');
+        buttonNames.forEach(function(x) {
+        document.getElementById(x).className = "";
+      });
+        resetNavMenu();  //with the click of the button reset the color
+        this.className = 'active';
+
+    });
+
+
+    document.getElementById('toggle-nuts2').addEventListener('click', function() {
+        toggleLayer('EU_NUTS2');
+        buttonNames.forEach(function(x) {
+        document.getElementById(x).className = "";
+      });
+        resetNavMenu();
+        this.className = 'active';
+    });
+
+
+    document.getElementById('toggle-nuts3').addEventListener('click', function() {
+        toggleLayer('EU_NUTS3');
+        buttonNames.forEach(function(x) {
+        document.getElementById(x).className = "";
+      });
+        resetNavMenu();
+        this.className = 'active';
+    });
+
+
+  });  //Closes the map.load
+
+    </script>
+  </body>
+</html>
