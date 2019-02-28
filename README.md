@@ -7,4 +7,7 @@ To see the map:
 
 1. Clone the repo
 
-2. Open the index file in a browser and the map should show.
+2. cd to the repo folder from the command line 
+
+3. Run python -m SimpleHTTPServer and the map should be visible on http://127.0.0.1:8000 
+    8000 being the default port
